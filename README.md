@@ -1,4 +1,4 @@
-# Chatbot
+# Group information about Group AA
 
 | Student name |Student id |
 |---|---|
