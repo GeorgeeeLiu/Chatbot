@@ -1,4 +1,4 @@
-# Group information about Group AA
+# Group information about group AA
 
 | Student name |Student id |
 |---|---|
