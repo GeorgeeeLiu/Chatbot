@@ -2,7 +2,10 @@
 ## This is a Line chatbot project about sharing public health information.    
 ### The design of our chatbot:    
 The chatbot has three major queries: The popular science knowledge, Latest news about the Coronavirus and Emergency & Services   
-1. For the popular science knowledge part,nnn
+1. For the popular science knowledge part, when we type some key words in the chatbot, it will return us three options:
+* Fever self-judgment: it will give us some useful methods to judge that whether we fever or not.
+* Precaution: it will introduce us some currect and powerful means that can help us to prevent coronavirus COVID-2019 infection.
+* More scientific knowledge: it will return us many professional knowledge about virus and some specific knowledge about the coronavirus COVID-2019.
 2. For the latest news about the Coronavirus part, when we type some keywords like 'latest news' to the chatbot, it will reply three options:   
 * real-time situation report, which is to show the real-time data about the confirmed and supsened cases of COVID-2019 in different countries or regions.   
 * latest news about COVID-2019, which is to show the link of the latest developments in the outbreak.     
