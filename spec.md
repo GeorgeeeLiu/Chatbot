@@ -7,9 +7,9 @@ The chatbot has three major queries: The popular science knowledge, Latest news 
 * Precaution: it will introduce us some currect and powerful means that can help us to prevent coronavirus COVID-2019 infection.
 * More scientific knowledge: it will return us many professional knowledge about virus and some specific knowledge about the coronavirus COVID-2019.
 2. For the latest news about the Coronavirus part, when we type some keywords like 'latest news' to the chatbot, it will reply three options:   
-* real-time situation report, which is to show the real-time data about the confirmed and supsened cases of COVID-2019 in different countries or regions.   
-* latest news about COVID-2019, which is to show the link of the latest developments in the outbreak.     
-* dispelled rumours, which is to provide rumours dispelled by authority in case the pubilc suffer.      
+* Real-time situation report, which is to show the real-time data about the confirmed and supsened cases of COVID-2019 in different countries or regions.   
+* Latest news about COVID-2019, which is to show the link of the latest developments in the outbreak.     
+* Myth busters, which is to provide rumours dispelled by authority in case the pubilc suffer.      
 3. For the Emergency & Services part:
 * Users can use the "Hospital Navigation" service to see new coronavirus COVID-2019 designated hospitals across the country, get hospital names, detailed addresses and contact numbers
 * In response to the concerns of a large number of travelling people about the safety of the trip, one-click inquiries are made about whether there are confirmed cases of patients on the same trip.
