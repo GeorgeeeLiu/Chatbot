@@ -1,0 +1,4 @@
+flask
+redis
+line-bot-sdk
+bs4
