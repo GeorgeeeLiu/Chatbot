@@ -1,1 +1,1 @@
-web: python healthcare_chatbot.py
+web: python app.py
