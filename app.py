@@ -7,7 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from argparse import ArgumentParser
-
 from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookParser,
@@ -18,18 +17,17 @@ from linebot.exceptions import (
 
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoMessage, FileMessage, StickerMessage,
-    StickerSendMessage, ImageSendMessage, ImageCarouselTemplate,
+    ImageSendMessage, ImageCarouselTemplate,
     CarouselColumn, ImageCarouselColumn, URITemplateAction, TemplateSendMessage,
     CarouselTemplate, FollowEvent, MessageTemplateAction,
     ButtonsTemplate,
 )
-from linebot.utils import PY3
 
 HOST = "redis-11209.c99.us-east-1-4.ec2.cloud.redislabs.com"
 PWD = "V6rZfXZodkAWI51gaILJvj4eCXHrT6VS"
 PORT = "11209"
-r = redis.Redis(host=HOST, password=PWD, port=PORT)
-
+pool = redis.ConnectionPool(host=HOST, password=PWD, port=PORT)
+r = redis.Redis(connection_pool=pool)
 app = Flask(__name__)
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -66,9 +64,7 @@ def callback():
     # if event is MessageEvent and message is TextMessage, then echo text
     for event in events:
         if isinstance(event, FollowEvent):
-            greeting(event)
-        # if isinstance(event.message, JoinEvent):
-        #     greeting(event)
+            handel_greeting(event)
         if not isinstance(event, MessageEvent):
             continue
         if isinstance(event.message, TextMessage):
@@ -88,7 +84,7 @@ def callback():
     return 'OK'
 
 
-def greeting(event):
+def handel_greeting(event):
     line_bot_api.reply_message(
         event.reply_token, [
             TextSendMessage(
@@ -124,7 +120,7 @@ def getMoreKnowledge():
         title = prepareTitle(soup_url.title.text)
         column = CarouselColumn(
             title=title,
-            text=' ',
+            text='views:' + str(r.incr(title)),
             actions=[
                 URITemplateAction(
                     label='More',
@@ -165,7 +161,7 @@ def getNews():
         url = 'https://www.who.int/' + value['href']
         column = CarouselColumn(
             title=prepareTitle(title),
-            text=' ',
+            text='views:' + str(r.incr(title)),
             actions=[URITemplateAction(
                 label='More',
                 uri=url
@@ -193,9 +189,7 @@ def getMythBusters():
     soup = BeautifulSoup(res.text, 'html.parser')
     myths = soup.find('div', attrs={'id': 'PageContent_C003_Col01'})
     for num in range(1, 6):
-        # myths1 = myths.select('h2')[num + 1]
         myths_image = myths.select('.link-container')[num]
-        # title = myths1.text
         url = myths_image['href']
         column = ImageCarouselColumn(
             image_url=str(url),
@@ -231,27 +225,11 @@ def getDonate():
     result = [TextSendMessage(text=result_text), carousel]
     return result
 
-    # buttons_template = TemplateSendMessage(
-    #     alt_text='Buttons Template',
-    #     template=ButtonsTemplate(
-    #         title='Help Fight Coronavirus',
-    #         text='ButtonsTemplate可以傳送text,uri',
-    #         thumbnail_image_url='https://ithelp.ithome.com.tw/upload/images/20180103/20107144k4F9pAPAce.png',
-    #         actions=[
-    #             URITemplateAction(label=' Go to donate', uri='https://covid19responsefund.org/'),
-    #         ]
-    #     ))
-    #
-    # template_message = TemplateSendMessage(
-    #     alt_text='Donate', template=buttons_template)
-    # return template_message
-
 
 def MainMenu():
     buttons_template = ButtonsTemplate(text='Main services', actions=[
         MessageTemplateAction(label='1 Popular Science', text='Popular science'),
         MessageTemplateAction(label='2 Outbreak News', text='Outbreak news'),
-        # MessageTemplateAction(label='3 Emergency&Services', text='Emergency & Services'),
         MessageTemplateAction(label='3 Donate', text='Donate'),
     ])
     template_message = TemplateSendMessage(
@@ -261,7 +239,6 @@ def MainMenu():
 
 def Menu1():
     buttons_template = ButtonsTemplate(text='1 Popular science', actions=[
-        # MessageTemplateAction(label='Fever Self-judgment', text='Fever self-judgment'),
         MessageTemplateAction(label='Precaution', text='Precaution'),
         MessageTemplateAction(label='More Knowledge', text='More knowledge'),
         MessageTemplateAction(label='Main Menu', text='Menu'),
@@ -270,8 +247,6 @@ def Menu1():
         alt_text='Menu', template=buttons_template)
     return template_message
 
-
-# 用def写三个功能: ever self-judgment; Precaution; More scientific knowledge 定义
 
 def Menu2():
     buttons_template = ButtonsTemplate(text='2 News about COVID-2019', actions=[
@@ -285,22 +260,6 @@ def Menu2():
     return template_message
 
 
-# def Menu3():
-#     buttons_template = ButtonsTemplate(text='3 Emergency & Services', actions=[
-#         MessageTemplateAction(label='Hospital Navigation', text='Hospital Navigation'),
-#         MessageTemplateAction(label='Same Trip Query', text='Same trip query'),
-#         MessageTemplateAction(label='Materials Donate', text='Materials donate'),
-#         MessageTemplateAction(label='Main Menu', text='Menu'),
-#     ])
-#     template_message = TemplateSendMessage(
-#         alt_text='Menu', template=buttons_template)
-#     return template_message
-
-
-# 用elif写三个功能: Hospital Navigation; Same Trip Query; Materials Donate 定义
-
-
-# Handler function for Text Message
 def handle_TextMessage(event):
     print(event.message.text)
     if event.message.text == 'Menu':
@@ -356,8 +315,6 @@ def handle_TextMessage(event):
                     preview_image_url='https://www.who.int/images/default-source/health-topics/coronavirus/social'
                                       '-media-squares/blue-4.tmb-1920v.png?sfvrsn=a5317377_5')
             ])
-    # 用elif写三个功能: ever self-judgment; Precaution; More scientific knowledge
-
     elif event.message.text == 'Outbreak news':
         msg = 'This is the latest news about COVID-2019, what kinds of information you want to know? '
         menu = Menu2()  # Menu2
@@ -382,23 +339,10 @@ def handle_TextMessage(event):
         line_bot_api.reply_message(
             event.reply_token, getMythBusters()
         )
-
-    # elif event.message.text == 'Emergency & Services':
-    #     # msg = 'You have entered Emergency & Services for ' + str(r.incr(event.message.text)) + ' times'
-    #     msg = 'Hello! This is Emergency & Services part, what kinds of information you want to know?'
-    #     menu = Menu3()  # Menu3()
-    #     line_bot_api.reply_message(
-    #         event.reply_token, [
-    #             TextSendMessage(msg),
-    #             menu]
-    #     )
-
-    # 用elif写三个功能: Hospital Navigation; Same Trip Query; Materials Donate
     elif event.message.text == 'Donate':
         line_bot_api.reply_message(
             event.reply_token, getDonate()
         )
-
     else:
         msg = "Sorry! I don't understand. What kind of the following information you want to know?"
         menu = MainMenu()
@@ -413,9 +357,7 @@ def handle_TextMessage(event):
 def handle_StickerMessage(event):
     line_bot_api.reply_message(
         event.reply_token,
-        StickerSendMessage(
-            package_id=event.message.package_id,
-            sticker_id=event.message.sticker_id)
+        TextSendMessage(text="Nice sticker!")
     )
 
 
@@ -423,7 +365,7 @@ def handle_StickerMessage(event):
 def handle_ImageMessage(event):
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text="Nice image!！")
+        TextSendMessage(text="Nice image!")
     )
 
 
