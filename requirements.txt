@@ -1,5 +1,8 @@
+googlemaps
+googletrans
+requests
 flask
 redis
 line-bot-sdk
 bs4
-requests
+

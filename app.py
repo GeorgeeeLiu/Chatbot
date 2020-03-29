@@ -17,16 +17,22 @@ from linebot.exceptions import (
 
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoMessage, FileMessage, StickerMessage,
-    ImageSendMessage, ImageCarouselTemplate,
+    LocationMessage, MessageAction, QuickReply, QuickReplyButton, LocationAction,
+    ImageSendMessage, ImageCarouselTemplate, ConfirmTemplate, PostbackTemplateAction, LocationSendMessage,
     CarouselColumn, ImageCarouselColumn, URITemplateAction, TemplateSendMessage,
     CarouselTemplate, FollowEvent, MessageTemplateAction,
     ButtonsTemplate,
 )
+# from googletrans import Translator
+# translator = Translator()
+import googlemaps
+
+gmaps = googlemaps.Client(key='AIzaSyBDOCnNog_WEQ0zQWMIoBiXqqmmMbmTc90')
 
 HOST = "redis-11209.c99.us-east-1-4.ec2.cloud.redislabs.com"
 PWD = "V6rZfXZodkAWI51gaILJvj4eCXHrT6VS"
 PORT = "11209"
-pool = redis.ConnectionPool(host=HOST, password=PWD, port=PORT)
+pool = redis.ConnectionPool(host=HOST, password=PWD, port=PORT, decode_responses=True)
 r = redis.Redis(connection_pool=pool)
 app = Flask(__name__)
 # get channel_secret and channel_access_token from your environment variable
@@ -77,18 +83,45 @@ def callback():
             handle_FileMessage(event)
         if isinstance(event.message, StickerMessage):
             handle_StickerMessage(event)
+        if isinstance(event.message, LocationMessage):
+            handle_LocationMessage(event)
         if not isinstance(event, MessageEvent):
             continue
         if not isinstance(event.message, TextMessage):
             continue
     return 'OK'
 
+    # for msg in msgs:
+    #     translateCN(msg)
+    # return 'OK'
+
+
+#
+#
+# def Languages():
+#     buttons_template = ButtonsTemplate(text='Languages', actions=[
+#         MessageTemplateAction(label='English'),
+#         MessageTemplateAction(label='中文'),
+#     ])
+#     template_message = TemplateSendMessage(
+#         alt_text='languages',
+#         template=buttons_template)
+#     return template_message
+#
+#
+# def translateCN(text):
+#     text1 = translator.translate(str(text),  dest='zh-cn').text
+#     return text1
+
 
 def handel_greeting(event):
     line_bot_api.reply_message(
         event.reply_token, [
             TextSendMessage(
-                text='Hello! This is your healthcare chatbot\uDBC0\uDC8D How can I help you?'),
+                text='Hello! This is your healthcare chatbot\uDBC0\uDC8D.'
+                # 'Please choose your prefer languages:\n你好，这是你的健康小助手\uDBC0\uDC8D，请选择你的语言：'
+            ),
+            # Languages(),
             MainMenu(),
         ])
 
@@ -165,8 +198,7 @@ def getNews():
             actions=[URITemplateAction(
                 label='More',
                 uri=url
-            )
-            ]
+            )]
         )
         result.append(column)
 
@@ -230,7 +262,7 @@ def MainMenu():
     buttons_template = ButtonsTemplate(text='Main services', actions=[
         MessageTemplateAction(label='1 Popular Science', text='Popular science'),
         MessageTemplateAction(label='2 Outbreak News', text='Outbreak news'),
-        MessageTemplateAction(label='3 Donate', text='Donate'),
+        MessageTemplateAction(label='3 Emergency & Donate', text='Emergency & Donate'),
     ])
     template_message = TemplateSendMessage(
         alt_text='Menu', template=buttons_template)
@@ -244,7 +276,7 @@ def Menu1():
         MessageTemplateAction(label='Main Menu', text='Menu'),
     ])
     template_message = TemplateSendMessage(
-        alt_text='Menu', template=buttons_template)
+        alt_text='Menu1', template=buttons_template)
     return template_message
 
 
@@ -256,7 +288,18 @@ def Menu2():
         MessageTemplateAction(label='Main Menu', text='Menu'),
     ])
     template_message = TemplateSendMessage(
-        alt_text='Menu', template=buttons_template)
+        alt_text='Menu2', template=buttons_template)
+    return template_message
+
+
+def Menu3():
+    buttons_template = ButtonsTemplate(text='Emergency & Donate', actions=[
+        MessageTemplateAction(label='Find Hospital', text='Find hospital'),
+        MessageTemplateAction(label='Donate', text='Donate'),
+        MessageTemplateAction(label='Main Menu', text='Menu'),
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='Menu3', template=buttons_template)
     return template_message
 
 
@@ -330,27 +373,73 @@ def handle_TextMessage(event):
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage(msg1),
-                TextSendMessage(msg2)]
-        )
+                TextSendMessage(msg2)])
     elif event.message.text == 'Latest news':
         line_bot_api.reply_message(
             event.reply_token, getNews())
     elif event.message.text == 'Myth busters':
         line_bot_api.reply_message(
-            event.reply_token, getMythBusters()
-        )
+            event.reply_token, getMythBusters())
+    elif event.message.text == 'Emergency & Donate':
+        line_bot_api.reply_message(
+            event.reply_token, Menu3())
+    elif event.message.text == 'Find hospital':
+        msg = 'Please send your location, thanks.'
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(
+            text=msg,
+            quick_reply=QuickReply(items=[QuickReplyButton(
+                action=LocationAction(label='Send your location'),
+                )])))
     elif event.message.text == 'Donate':
         line_bot_api.reply_message(
             event.reply_token, getDonate()
         )
     else:
         msg = "Sorry! I don't understand. What kind of the following information you want to know?"
-        menu = MainMenu()
         line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(msg),
-                menu]
+            event.reply_token, [TextSendMessage(
+                text=msg,
+                quick_reply=QuickReply(items=[
+                    QuickReplyButton(action=MessageAction(
+                        label='1 Popular Science',
+                        text='Popular science')),
+                    QuickReplyButton(action=MessageAction(
+                        label='2 Outbreak News',
+                        text='Outbreak news')),
+                    QuickReplyButton(action=MessageAction(
+                        label='3 Emergency & Donate',
+                        text='Emergency & Donate')),
+                ]))]
         )
+
+
+def handle_LocationMessage(event):
+    r.set('my_lat', event.message.latitude)
+    r.set('my_lon', event.message.longitude)
+    mylat = float(r.get('my_lat'))
+    mylng = float(r.get('my_lon'))
+    mylocation = '{}, {}'.format(mylat, mylng)
+    places_results = gmaps.places_nearby(location=mylocation, type='hospital', radius=10000)
+    list = []
+    for place in places_results['results']:
+        name = place['name']
+        lat = place['geometry']['location']['lat']
+        lng = place['geometry']['location']['lng']
+        address = place['vicinity']
+        distance = ((lat - mylat) ** 2 + (lng - mylng) ** 2) ** 0.5
+        info = distance, name, lat, lng, address
+        list.append(info)
+    list.sort()
+    name_ = list[0][1]
+    lat_ = list[0][2]
+    lng_ = list[0][3]
+    address_ = list[0][4]
+    result_text = 'The nearest hospital around you is ' + name_ + '.'
+    result = [TextSendMessage(text=result_text),
+              LocationSendMessage(
+                  title=name_, address=address_,
+                  latitude=lat_, longitude=lng_)]
+    line_bot_api.reply_message(event.reply_token, result)
 
 
 # Handler function for Sticker Message
