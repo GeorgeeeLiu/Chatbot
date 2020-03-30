@@ -9,6 +9,6 @@ The chatbot has three major queries: The popular science knowledge, Latest news 
 * Real-time situation report, which is to show the real-time data report about the confirmed and supsened cases of COVID-2019 in different countries or regions.   
 * Latest news about COVID-2019, which is to show the link of the latest developments in the outbreak.     
 * Myth busters, which is to provide rumours dispelled by authority in case the pubilc suffer.      
-3. For the Donate part:
+3. For the Emergency & Donate part:
 * Users can also send their location to find the nearest hospital from the chatbot.
 * Users can donate material or money through the link for helping fight coronavirus.
