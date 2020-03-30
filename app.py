@@ -1,44 +1,39 @@
 from __future__ import unicode_literals
-
 import os
 import sys
 import redis
 import requests
 from bs4 import BeautifulSoup
-
+import googlemaps
 from argparse import ArgumentParser
 from flask import Flask, request, abort
-from linebot import (
-    LineBotApi, WebhookParser,
-)
-from linebot.exceptions import (
-    InvalidSignatureError
-)
-
+from linebot import (LineBotApi, WebhookParser)
+from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoMessage, FileMessage, StickerMessage,
     LocationMessage, MessageAction, QuickReply, QuickReplyButton, LocationAction,
-    ImageSendMessage, ImageCarouselTemplate, ConfirmTemplate, PostbackTemplateAction, LocationSendMessage,
+    ImageSendMessage, ImageCarouselTemplate,  LocationSendMessage,
     CarouselColumn, ImageCarouselColumn, URITemplateAction, TemplateSendMessage,
     CarouselTemplate, FollowEvent, MessageTemplateAction,
     ButtonsTemplate,
 )
 # from googletrans import Translator
 # translator = Translator()
-import googlemaps
 
-gmaps = googlemaps.Client(key='AIzaSyBDOCnNog_WEQ0zQWMIoBiXqqmmMbmTc90')
+google_api_key = os.getenv('GOOGLE_API_KEY')
 
-HOST = "redis-11209.c99.us-east-1-4.ec2.cloud.redislabs.com"
-PWD = "V6rZfXZodkAWI51gaILJvj4eCXHrT6VS"
-PORT = "11209"
+HOST = os.getenv('REDIS_HOST')
+PWD = os.getenv('REDIS_PASSWORD')
+PORT = os.getenv('REDIS_PORT')
+
+gmaps = googlemaps.Client(key=google_api_key)
+
 pool = redis.ConnectionPool(host=HOST, password=PWD, port=PORT, decode_responses=True)
 r = redis.Redis(connection_pool=pool)
 app = Flask(__name__)
-# get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-# obtain the port that heroku assigned to this app.
+
 heroku_port = os.getenv('PORT', None)
 
 if channel_secret is None:
