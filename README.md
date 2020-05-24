@@ -13,5 +13,8 @@ The chatbot has three major queries: The popular science knowledge, Latest news 
 * Users can also send their location to find the nearest hospital from the chatbot.
 * Users can donate material or money through the link for helping fight coronavirus.
 
-QR code of the chatbot:
+### Want demo? please click:https://github.com/GeorgeeeLiu/Chatbot/blob/master/Chatbot_Demo.mp4
+
+### QR code of the chatbot:
+
 ![Alt Text](https://github.com/GeorgeeeLiu/Chatbot/blob/master/182wpswj.png)
