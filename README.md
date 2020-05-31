@@ -12,10 +12,10 @@ The chatbot has three major queries: The popular science knowledge, Latest news 
 3. For the Emergency & Donate part:
 * Users can also send their location to find the nearest hospital from the chatbot.
 * Users can donate material or money through the link for helping fight coronavirus.
-### Screenshots: https://github.com/GeorgeeeLiu/Chatbot/blob/master/screenshots.pdf
+### [Screenshots](https://github.com/GeorgeeeLiu/Chatbot/blob/master/screenshots.pdf)
 
-### Want demo? please click:https://github.com/GeorgeeeLiu/Chatbot/blob/master/Chatbot_Demo.mp4
+### [Want demo? click here](https://github.com/GeorgeeeLiu/Chatbot/blob/master/Chatbot_Demo.mp4)
 
-### QR code of the chatbot:
+### QR code of the LINE chatbot:
 
 ![Alt Text](https://github.com/GeorgeeeLiu/Chatbot/blob/master/182wpswj.png)
