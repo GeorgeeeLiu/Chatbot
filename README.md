@@ -1,4 +1,4 @@
-# A Line Chatbot with information about Covid-19
+# A Line Chatbot with information about COVID-19
 ## This is a Line chatbot project about sharing public health information.    
 ### The design of our chatbot:    
 The chatbot has three major queries: The popular science knowledge, Latest news about the Coronavirus and Emergency & Donate   
