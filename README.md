@@ -19,7 +19,8 @@ The chatbot has three major queries: **The popular science knowledge, Latest new
 ![Alt Text](images/architecture.png)
 
 ### [Want demo? click here](https://github.com/GeorgeeeLiu/Chatbot/blob/master/Chatbot_Demo.mp4)
-![Alt Text](images/Demo.gif)
+
+<img src="images/Demo.gif" width="400px" height="800px">
 
 ### [More screenshots](https://github.com/GeorgeeeLiu/Chatbot/blob/master/screenshots.pdf)
 
